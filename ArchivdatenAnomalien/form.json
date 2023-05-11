@@ -60,12 +60,22 @@
                 {
                     "caption": "Date",
                     "name": "Date",
-                    "width": "auto"
+                    "width": "250px"
+                },
+                {
+                    "caption": "Value Before",
+                    "name": "ValueBefore",
+                    "width": "250px"
                 },
                 {
                     "caption": "Value",
                     "name": "Value",
-                    "width": "auto"
+                    "width": "250px"
+                },
+                {
+                    "caption": "Value After",
+                    "name": "ValueAfter",
+                    "width": "250px"
                 },
                 {
                     "caption": "Delete",

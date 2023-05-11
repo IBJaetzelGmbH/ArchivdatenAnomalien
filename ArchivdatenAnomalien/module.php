@@ -43,8 +43,6 @@ declare(strict_types=1);
 
 			$test = $this->remove_outliers($values);
 
-			IPS_LogMessage('test',print_r($test,true));
-
 			$keys = array_keys($test);
 
 			$resultListValues = [];
@@ -52,8 +50,11 @@ declare(strict_types=1);
 			IPS_LogMessage('test',print_r($values[$key],true));
 				$resultListValues[] = [
 					'Date' => date('d.m.Y H:i:s',$values[$key]['TimeStamp']),
+					'ValueBefore' => $values[$key-1]['Avg'],
 					'Value' => $values[$key]['Avg'],
+					'ValueAfter' => $values[$key+1]['Avg'],
 					'Delete' => false
+
 				];
 			}
 			$this->UpdateFormField("resultList", "values", json_encode($resultListValues));
