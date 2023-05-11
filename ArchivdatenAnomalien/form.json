@@ -1,0 +1,83 @@
+{
+    "elements": [
+        {
+            "type": "SelectVariable",
+            "caption": "Logged varaible",
+            "name": "LoggedVariable",
+            "width": "auto",
+            "requiredLogging": 1
+        },
+        {
+            "type": "Select",
+            "name": "AggregationType",
+            "caption": "Aggregation Type",
+            "options": [
+                {
+                    "caption": "Hour",
+                    "value": 0
+                },
+                {
+                    "caption": "Day",
+                    "value": 1
+                },
+                {
+                    "caption": "Week",
+                    "value": 2
+                },
+                {
+                    "caption": "Month",
+                    "value": 3
+                },
+                {
+                    "caption": "Year",
+                    "value": 3
+                }
+            ]
+        },
+        {
+            "type": "SelectDate",
+            "name": "StartDate",
+            "caption": "Start Date"
+        },
+        {
+            "type": "SelectDate",
+            "name": "EndDate",
+            "caption": "End Date"
+        }
+    ],
+    "actions": [
+        {
+            "type": "Button",
+            "caption": "Check Anomalies",
+            "onClick": "AA_checkAnomalies($id);"
+        },
+        {
+            "type": "List",
+            "name": "resultList",
+            "rowCount": 5,
+            "add": false,
+            "columns": [
+                {
+                    "caption": "Date",
+                    "name": "Date",
+                    "width": "auto"
+                },
+                {
+                    "caption": "Value",
+                    "name": "Value",
+                    "width": "auto"
+                },
+                {
+                    "caption": "Delete",
+                    "name": "Delete",
+                    "width": "100px",
+                    "edit": {
+                        "type": "CheckBox"
+                    }
+                }
+            ],
+            "values": []
+        }
+    ],
+    "status": []
+}
