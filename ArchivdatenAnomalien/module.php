@@ -47,9 +47,9 @@ declare(strict_types=1);
 			$keys = array_keys($test);
 
 			$resultListValues = [];
-			foreach ($keys as $key) {
+/**					foreach ($keys as $key) {
 			IPS_LogMessage('test',print_r($values[$key],true));
-				$resultListValues[] = [
+		$resultListValues[] = [
 					'Date' => date('d.m.Y H:i:s',$values[$key]['TimeStamp']),
 					'ValueBefore' => $values[$key+1]['Value'],
 					'Value' => $values[$key]['Value'],
@@ -58,9 +58,58 @@ declare(strict_types=1);
 
 				];
 			}
+			*/
+
+			$resultListValues = $this->filter_variable($values);
+			IPS_LogMessage('test',print_r($resultListValues,true));
 			$this->UpdateFormField("resultList", "values", json_encode($resultListValues));
 
 		}
+
+
+				private function filter_variable($logData) {
+
+					$failedValues = [];
+				// Anzahl der Werte
+					$entries = count($logData);
+				// Macht erst ab 3 Werten Sinn
+					if ($entries < 2) return;
+				// Anzahl der Fehler protokolieren
+					$changes = 0;
+					for ($i = 2; $i < $entries; $i++){
+				// Differenz Wert2-Wert1
+						$diff1 = $logData[$i - 1]['Value'] - $logData[$i - 2]['Value'];
+				// Differenz Wert3-Wert2
+						$diff2 = $logData[$i]['Value'] - $logData[$i - 1]['Value'];
+				// Wenn der mittlere Wert entweder der größte oder kleinste Wert ist stimmt was nicht
+						if ((($diff1 < -0.1) && ($diff2 > 0.1)) ||
+							(($diff1 > 0.1) && ($diff2 < -0.1))){ 
+				// lösche mittleren Wert
+						$failedValues[] = [
+							'Date' => date('d.m.Y H:i:s',$logData[$i - 1]['TimeStamp']),
+							'ValueBefore' => $logData[$i + 1]['Value'],
+							'Value' => $logData[$i - 1]['Value'],
+							'ValueAfter' => $logData[$i]['Value']
+						];
+				// Fehler in Logfile eintragen
+							IPS_LogMessage("Medianfilter", $this->ReadPropertyInteger('LoggedVariable').' '.$changes.'. diff1:'.$diff1.' $diff2:'.$diff2);
+
+				// eine Änderung mehr
+							$changes++;
+						}
+					}
+
+				// Wenn es Änderungen gab
+					if ($changes > 0){
+				// Anzahl der Fehler ins Logfile
+						IPS_LogMessage("Medianfilter", $this->ReadPropertyInteger('LoggedVariable').': Fehlerhafte Werte:'.$changes); 
+					}
+					else{
+						IPS_LogMessage("Medianfilter", $this->ReadPropertyInteger('LoggedVariable').': Alles OK'); 
+					}
+					return $failedValues;
+				}
+
 
 		private function remove_outliers($dataset, $magnitude = 1) {
 
