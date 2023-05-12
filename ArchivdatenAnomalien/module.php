@@ -51,9 +51,9 @@ declare(strict_types=1);
 			IPS_LogMessage('test',print_r($values[$key],true));
 				$resultListValues[] = [
 					'Date' => date('d.m.Y H:i:s',$values[$key]['TimeStamp']),
-					'ValueBefore' => $values[$key-1]['Value'],
+					'ValueBefore' => $values[$key+1]['Value'],
 					'Value' => $values[$key]['Value'],
-					'ValueAfter' => $values[$key+1]['Value'],
+					'ValueAfter' => $values[$key-1]['Value'],
 					'Delete' => false
 
 				];
