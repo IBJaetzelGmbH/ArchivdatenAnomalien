@@ -5,7 +5,7 @@
             "caption": "Logged varaible",
             "name": "LoggedVariable",
             "width": "auto",
-            "requiredLogging": 1
+            "requiredLogging": 4
         },
         {
             "type": "Select",
