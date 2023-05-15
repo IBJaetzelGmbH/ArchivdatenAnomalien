@@ -38,7 +38,7 @@ declare(strict_types=1);
 			$startDate = strtotime($startDate['day']. '.'.$startDate['month']. '.'. $startDate['year']. '00:00:00');
 			$endDate = strtotime($endDate['day']. '.'.$endDate['month']. '.'. $endDate['year']. '23:59:59');
 
-			if ($rawData) {
+			if (!$rawData) {
 				$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
 				$filteredValues = $this->filter_variable($values, $rawData);
 				$resultListValues = [];
