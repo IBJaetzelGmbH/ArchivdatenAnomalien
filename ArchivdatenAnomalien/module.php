@@ -46,7 +46,8 @@ declare(strict_types=1);
 					$startDate = strtotime($Value['Date'])-8640; //Value Datum - ein Tag
 					$endDate = strtotime($Value['Date']); //Value Datum + ein Tag
 			
-					IPS_LogMessage('endDatum', date('d.m.Y H.i',$endDate));
+					IPS_LogMessage('startDate', date('d.m.Y H;:i',$startDate));
+					IPS_LogMessage('endDatum', date('d.m.Y H:i',$endDate));
 
 					$rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
 					$filteredRawValues = $this->filter_variable($rawValues,true);
