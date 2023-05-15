@@ -44,7 +44,7 @@ declare(strict_types=1);
 
 				foreach ($filteredValues as $Value) {
 					$startDate = strtotime($Value['Date']); //Value Datum - ein Tag
-					$endDate = strtotime($Value['Date'])-8640; //Value Datum + ein Tag
+					$endDate = strtotime($Value['Date'])-86400; //Value Datum + ein Tag
 			
 					IPS_LogMessage('startDate', date('d.m.Y H:i',$startDate));
 					IPS_LogMessage('endDatum', date('d.m.Y H:i',$endDate));
