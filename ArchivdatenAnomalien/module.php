@@ -49,13 +49,9 @@ declare(strict_types=1);
 					$endDate = strtotime($Value['Date']) + 8640; //Value Datum + ein Tag
 			
 					$rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
-					IPS_LogMessage('rawValues', print_r($rawValues,true));
-
 					$filteredRawValues = $this->filter_variable($rawValues,true);
-					IPS_LogMessage('filteredRawValues Values', print_r($filteredRawValues,true));
 					if (count($filteredRawValues) >0 ) {
 						foreach ($filteredRawValues as $rawValue) {
-							IPS_LogMessage('rawValue', print_r($rawValue,true));
 							array_push($resultListValues,$rawValue);
 						}
 					}
@@ -65,7 +61,6 @@ declare(strict_types=1);
 				$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
 				$resultListValues = $this->filter_variable($values, $rawData);
 			}
-			IPS_LogMessage('test',print_r($resultListValues,true));
 			$this->UpdateFormField("resultList", "values", json_encode($resultListValues));
 
 		}
