@@ -43,8 +43,8 @@ declare(strict_types=1);
 				$filteredValues = $this->filter_variable($values, $rawData);
 				$resultListValues = [];
 				foreach ($filteredValues as $Value) {
-					$startDate = strtotime($Value['Date'] - 8640); //Value Datum - ein Tag
-					$startEndDate = strtotime($Value['Date'] + 8640); //Value Datum + ein Tag
+					$startDate = strtotime($Value['Date']) - 8640; //Value Datum - ein Tag
+					$startEndDate = strtotime($Value['Date']) + 8640; //Value Datum + ein Tag
 					$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
 					array_push($resultListValues, $this->filter_variable($values,true));
 			}
