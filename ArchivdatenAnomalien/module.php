@@ -37,13 +37,13 @@ declare(strict_types=1);
 		
 			$startDate = strtotime($startDate['day']. '.'.$startDate['month']. '.'. $startDate['year']. '00:00:00');
 			$endDate = strtotime($endDate['day']. '.'.$endDate['month']. '.'. $endDate['year']. '23:59:59');
-
+			$resultListValues = [];
 			if (!$rawData) {
 				$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
 				$filteredValues = $this->filter_variable($values, $rawData);
 
 				IPS_LogMessage('aggregierte Values', print_r($filteredValues,true));
-				$resultListValues = [];
+
 				foreach ($filteredValues as $Value) {
 					$startDate = strtotime($Value['Date']);// - 8640; //Value Datum - ein Tag
 					$startEndDate = strtotime($Value['Date']);// + 8640; //Value Datum + ein Tag
@@ -51,7 +51,7 @@ declare(strict_types=1);
 					IPS_LogMessage('startDate Values', $startDate);
 					IPS_LogMessage('startEndDate Values', $startEndDate);
 					
-					$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
+					$values = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
 					IPS_LogMessage('startEndDate Values', print_r($values,true));
 					$filteredRawValues =  $this->filter_variable($values,true);
 					foreach ($filteredRawValues as $rawValue) {
