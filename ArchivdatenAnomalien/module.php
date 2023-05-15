@@ -52,6 +52,8 @@ declare(strict_types=1);
 					IPS_LogMessage('startEndDate Values', $startEndDate);
 					
 					$rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
+					IPS_LogMessage('rawValues', print_r($rawValues,true));
+
 					$filteredRawValues = $this->filter_variable($rawValues,true);
 					IPS_LogMessage('filteredRawValues Values', print_r($filteredRawValues,true));
 					foreach ($filteredRawValues as $rawValue) {
