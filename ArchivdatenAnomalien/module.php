@@ -55,6 +55,7 @@ declare(strict_types=1);
 					$filteredRawValues = $this->filter_variable($rawValues,true);
 					IPS_LogMessage('filteredRawValues Values', print_r($filteredRawValues,true));
 					foreach ($filteredRawValues as $rawValue) {
+						IPS_LogMessage('rawValue', print_r($rawValue,true));
 						array_push($resultListValues,$rawValue);
 					}
 			}
