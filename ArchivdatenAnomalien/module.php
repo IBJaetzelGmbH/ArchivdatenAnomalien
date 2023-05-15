@@ -13,7 +13,6 @@ declare(strict_types=1);
 			$this->RegisterPropertyString('StartDate','');
 			$this->RegisterPropertyString('EndDate','');
 			$this->RegisterPropertyBoolean('rawData',false);
-
 		}
 
 		public function Destroy()
@@ -60,9 +59,9 @@ declare(strict_types=1);
 
 
 				private function filter_variable($logData, $rawData) {
-
+					$keyValue = 'Avg';
 					if($rawData) {
-						$keyValue = 'Avg';
+						$keyValue = 'Value';
 					}
 
 					$failedValues = [];
