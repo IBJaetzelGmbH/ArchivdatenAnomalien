@@ -53,10 +53,13 @@ declare(strict_types=1);
 
 					$filteredRawValues = $this->filter_variable($rawValues,true);
 					IPS_LogMessage('filteredRawValues Values', print_r($filteredRawValues,true));
-					foreach ($filteredRawValues as $rawValue) {
-						IPS_LogMessage('rawValue', print_r($rawValue,true));
-						array_push($resultListValues,$rawValue);
+					if (count($filteredRawValues >0 )) {
+						foreach ($filteredRawValues as $rawValue) {
+							IPS_LogMessage('rawValue', print_r($rawValue,true));
+							array_push($resultListValues,$rawValue);
+						}
 					}
+
 			}
 		} else {
 				$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
