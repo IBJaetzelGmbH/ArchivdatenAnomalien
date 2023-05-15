@@ -47,10 +47,7 @@ declare(strict_types=1);
 				foreach ($filteredValues as $Value) {
 					$startDate = strtotime($Value['Date']);// - 8640; //Value Datum - ein Tag
 					$endDate = strtotime($Value['Date']) + 8640; //Value Datum + ein Tag
-
-					IPS_LogMessage('startDate Values', $startDate);
-					IPS_LogMessage('startEndDate Values', $startEndDate);
-					
+			
 					$rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
 					IPS_LogMessage('rawValues', print_r($rawValues,true));
 
