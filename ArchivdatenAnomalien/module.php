@@ -36,8 +36,8 @@ declare(strict_types=1);
 
 			
 
-			$startDate = strtotime($startDate['day']. '.'.$startDate['month']. '.'. $startDate['year']);
-			$endDate = strtotime($endDate['day']. '.'.$endDate['month']. '.'. $endDate['year']);
+			$startDate = strtotime($startDate['day']. '.'.$startDate['month']. '.'. $startDate['year']. '00:00:00');
+			$endDate = strtotime($endDate['day']. '.'.$endDate['month']. '.'. $endDate['year']. '23:59:59');
 
 			//$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
 			$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
