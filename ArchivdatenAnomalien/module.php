@@ -89,7 +89,7 @@ declare(strict_types=1);
 							'Date' => date('d.m.Y H:i:s',$logData[$i - 1]['TimeStamp']),
 							'ValueBefore' => $logData[$i]['Value'],
 							'Value' => $logData[$i - 1]['Value'],
-							'ValueAfter' => $logData[$i+1]['Value']
+							'ValueAfter' => $logData[$i-2]['Value']
 						];
 				// Fehler in Logfile eintragen
 							IPS_LogMessage("Medianfilter", $this->ReadPropertyInteger('LoggedVariable').' '.$changes.'. diff1:'.$diff1.' $diff2:'.$diff2);
