@@ -25,6 +25,11 @@ declare(strict_types=1);
 			parent::ApplyChanges();
 		}
 
+		public function deleteAnomalies($resultList) {
+			IPS_LogMessage('resultList', print_r($resultList,true));
+
+		}
+
 		public function checkAnomalies(bool $rawData = false) {
 			$archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 			$variableID = $this->ReadPropertyInteger('LoggedVariable');
@@ -39,10 +44,11 @@ declare(strict_types=1);
 			if (!$rawData) {
 				$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
 				$filteredValues = $this->filter_variable($values, $rawData);
+				IPS_LogMessage('filteredValues',print_r($filteredValues,true));
 
 				foreach ($filteredValues as $Value) {
 					$startDate = strtotime($Value['Date'])-172800; //Value Datum - zwei Tag
-					$endDate = strtotime($Value['Date']); //Value Datum + ein Tag
+					$endDate = strtotime($Value['Date'])+172800 ; //Value Datum + ein Tag
 			
 					IPS_LogMessage('startDate', date('d.m.Y H:i',$startDate));
 					IPS_LogMessage('endDatum', date('d.m.Y H:i',$endDate));
@@ -51,7 +57,9 @@ declare(strict_types=1);
 					$filteredRawValues = $this->filter_variable($rawValues,true);
 					if (count($filteredRawValues) >0 ) {
 						foreach ($filteredRawValues as $rawValue) {
-							array_push($resultListValues,$rawValue);
+							if(!array_search($rawValue['Date'], array_column($resultListValues, 'Date'))) {
+								array_push($resultListValues,$rawValue);
+							}
 						}
 					}
 

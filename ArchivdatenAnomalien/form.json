@@ -65,6 +65,11 @@
                 }
             ],
             "values": []
+        },
+        {
+            "type": "Button",
+            "caption": "Delete selected Anomalies",
+            "onClick": "AA_deleteAnomalies($id, $resultList);"
         }
     ],
     "status": []
