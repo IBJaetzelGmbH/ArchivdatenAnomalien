@@ -8,33 +8,6 @@
             "requiredLogging": 4
         },
         {
-            "type": "Select",
-            "name": "AggregationType",
-            "caption": "Aggregation Type",
-            "options": [
-                {
-                    "caption": "Hour",
-                    "value": 0
-                },
-                {
-                    "caption": "Day",
-                    "value": 1
-                },
-                {
-                    "caption": "Week",
-                    "value": 2
-                },
-                {
-                    "caption": "Month",
-                    "value": 3
-                },
-                {
-                    "caption": "Year",
-                    "value": 3
-                }
-            ]
-        },
-        {
             "type": "SelectDate",
             "name": "StartDate",
             "caption": "Start Date"

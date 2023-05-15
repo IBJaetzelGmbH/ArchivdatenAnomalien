@@ -8,8 +8,6 @@ declare(strict_types=1);
 			//Never delete this line!
 			parent::Create();
 			$this->RegisterPropertyInteger('LoggedVariable',0);
-			$this->RegisterPropertyInteger('AggregationType',1);
-			$this->RegisterPropertyInteger('Outlier',30);
 			$this->RegisterPropertyString('StartDate','');
 			$this->RegisterPropertyString('EndDate','');
 			$this->RegisterPropertyBoolean('rawData',false);
@@ -30,7 +28,7 @@ declare(strict_types=1);
 		public function checkAnomalies(bool $rawData = false) {
 			$archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 			$variableID = $this->ReadPropertyInteger('LoggedVariable');
-			$aggregationType = $this->ReadPropertyInteger('AggregationType');
+			$aggregationType = 1;
 			$startDate = json_decode($this->ReadPropertyString('StartDate'),true);
 			$endDate = json_decode($this->ReadPropertyString('EndDate'),true);
 
@@ -43,7 +41,7 @@ declare(strict_types=1);
 				$filteredValues = $this->filter_variable($values, $rawData);
 
 				foreach ($filteredValues as $Value) {
-					$startDate = strtotime($Value['Date'])-172800; //Value Datum - ein Tag
+					$startDate = strtotime($Value['Date'])-172800; //Value Datum - zwei Tag
 					$endDate = strtotime($Value['Date']); //Value Datum + ein Tag
 			
 					IPS_LogMessage('startDate', date('d.m.Y H:i',$startDate));
