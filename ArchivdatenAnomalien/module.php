@@ -41,6 +41,8 @@ declare(strict_types=1);
 			if (!$rawData) {
 				$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
 				$filteredValues = $this->filter_variable($values, $rawData);
+
+				IPS_LogMessage('aggregierte Values', print_r($filteredValues,true));
 				$resultListValues = [];
 				foreach ($filteredValues as $Value) {
 					$startDate = strtotime($Value['Date']) - 8640; //Value Datum - ein Tag
