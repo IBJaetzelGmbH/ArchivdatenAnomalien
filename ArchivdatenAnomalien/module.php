@@ -12,6 +12,7 @@ declare(strict_types=1);
 			$this->RegisterPropertyInteger('Outlier',30);
 			$this->RegisterPropertyString('StartDate','');
 			$this->RegisterPropertyString('EndDate','');
+			$this->RegisterPropertyBoolean('rawData',false);
 
 		}
 
@@ -27,47 +28,42 @@ declare(strict_types=1);
 			parent::ApplyChanges();
 		}
 
-		public function checkAnomalies() {
+		public function checkAnomalies(bool $rawData = false) {
 			$archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
 			$variableID = $this->ReadPropertyInteger('LoggedVariable');
 			$aggregationType = $this->ReadPropertyInteger('AggregationType');
 			$startDate = json_decode($this->ReadPropertyString('StartDate'),true);
 			$endDate = json_decode($this->ReadPropertyString('EndDate'),true);
 
-			
-
+		
 			$startDate = strtotime($startDate['day']. '.'.$startDate['month']. '.'. $startDate['year']. '00:00:00');
 			$endDate = strtotime($endDate['day']. '.'.$endDate['month']. '.'. $endDate['year']. '23:59:59');
 
-			//$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
-			$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
-
-			$test = $this->remove_outliers($values);
-
-			$keys = array_keys($test);
-
-			$resultListValues = [];
-/**					foreach ($keys as $key) {
-			IPS_LogMessage('test',print_r($values[$key],true));
-		$resultListValues[] = [
-					'Date' => date('d.m.Y H:i:s',$values[$key]['TimeStamp']),
-					'ValueBefore' => $values[$key+1]['Value'],
-					'Value' => $values[$key]['Value'],
-					'ValueAfter' => $values[$key-1]['Value'],
-					'Delete' => false
-
-				];
+			if ($rawData) {
+				$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
+				$filteredValues = $this->filter_variable($values, $rawData);
+				$resultListValues = [];
+				foreach ($filteredValues as $Value) {
+					$startDate = strtotime($Value['Date'] - 8640); //Value Datum - ein Tag
+					$startEndDate = strtotime($Value['Date'] + 8640); //Value Datum + ein Tag
+					$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
+					array_push($resultListValues, $this->filter_variable($values));
 			}
-			*/
-
-			$resultListValues = $this->filter_variable($values);
+		} else {
+				$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
+				$resultListValues = $this->filter_variable($values, $rawData);
+			}
 			IPS_LogMessage('test',print_r($resultListValues,true));
 			$this->UpdateFormField("resultList", "values", json_encode($resultListValues));
 
 		}
 
 
-				private function filter_variable($logData) {
+				private function filter_variable($logData, $rawData) {
+
+					if($rawData) {
+						$keyValue = 'Avg';
+					}
 
 					$failedValues = [];
 				// Anzahl der Werte
@@ -78,18 +74,18 @@ declare(strict_types=1);
 					$changes = 0;
 					for ($i = 2; $i < $entries; $i++){
 				// Differenz Wert2-Wert1
-						$diff1 = $logData[$i - 1]['Value'] - $logData[$i - 2]['Value'];
+						$diff1 = $logData[$i - 1][$keyValue] - $logData[$i - 2][$keyValue];
 				// Differenz Wert3-Wert2
-						$diff2 = $logData[$i]['Value'] - $logData[$i - 1]['Value'];
+						$diff2 = $logData[$i][$keyValue] - $logData[$i - 1][$keyValue];
 				// Wenn der mittlere Wert entweder der größte oder kleinste Wert ist stimmt was nicht
 						if ((($diff1 < -0.1) && ($diff2 > 0.1)) ||
 							(($diff1 > 0.1) && ($diff2 < -0.1))){ 
 				// lösche mittleren Wert
 						$failedValues[] = [
 							'Date' => date('d.m.Y H:i:s',$logData[$i - 1]['TimeStamp']),
-							'ValueBefore' => $logData[$i]['Value'],
-							'Value' => $logData[$i - 1]['Value'],
-							'ValueAfter' => $logData[$i-2]['Value']
+							'ValueBefore' => $logData[$i][$keyValue],
+							'Value' => $logData[$i - 1][$keyValue],
+							'ValueAfter' => $logData[$i-2][$keyValue]
 						];
 				// Fehler in Logfile eintragen
 							IPS_LogMessage("Medianfilter", $this->ReadPropertyInteger('LoggedVariable').' '.$changes.'. diff1:'.$diff1.' $diff2:'.$diff2);

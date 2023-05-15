@@ -47,9 +47,14 @@
     ],
     "actions": [
         {
+            "type": "CheckBox",
+            "name": "rawData",
+            "caption": "Raw Data"
+        },
+        {
             "type": "Button",
             "caption": "Check Anomalies",
-            "onClick": "AA_checkAnomalies($id);"
+            "onClick": "AA_checkAnomalies($id, $rawData);"
         },
         {
             "type": "List",
