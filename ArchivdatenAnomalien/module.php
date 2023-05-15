@@ -35,8 +35,8 @@ declare(strict_types=1);
 			$endDate = json_decode($this->ReadPropertyString('EndDate'),true);
 
 		
-			$startDate = strtotime($startDate['day']. '.'.$startDate['month']. '.'. $startDate['year']. '00:00:00');
-			$endDate = strtotime($endDate['day'] . '.'.$endDate['month']. '.'. $endDate['year']. '23:59:59');
+			$startDate = strtotime($startDate['day']-2 . '.'.$startDate['month']. '.'. $startDate['year']. '00:00:00');
+			$endDate = strtotime($endDate['day']+2 . '.'.$endDate['month']. '.'. $endDate['year']. '23:59:59');
 			$resultListValues = [];
 			if (!$rawData) {
 				$values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
