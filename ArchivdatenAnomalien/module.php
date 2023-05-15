@@ -81,7 +81,7 @@ declare(strict_types=1);
 				// Anzahl der Werte
 					$entries = count($logData);
 				// Macht erst ab 3 Werten Sinn
-					if ($entries < 2) return;
+					if ($entries < 2) return $failedValues;
 				// Anzahl der Fehler protokolieren
 					$changes = 0;
 					for ($i = 2; $i < $entries; $i++){
