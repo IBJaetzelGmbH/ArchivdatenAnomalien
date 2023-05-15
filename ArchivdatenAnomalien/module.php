@@ -46,7 +46,7 @@ declare(strict_types=1);
 					$startDate = strtotime($Value['Date'] - 8640); //Value Datum - ein Tag
 					$startEndDate = strtotime($Value['Date'] + 8640); //Value Datum + ein Tag
 					$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
-					array_push($resultListValues, $this->filter_variable($values));
+					array_push($resultListValues, $this->filter_variable($values,true));
 			}
 		} else {
 				$values = AC_GetLoggedValues ($archiveID, $variableID, $startDate, $endDate, 0);
