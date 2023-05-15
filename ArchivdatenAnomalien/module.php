@@ -45,7 +45,7 @@ declare(strict_types=1);
 				IPS_LogMessage('aggregierte Values', print_r($filteredValues,true));
 
 				foreach ($filteredValues as $Value) {
-					$startDate = strtotime($Value['Date']);// - 8640; //Value Datum - ein Tag
+					$startDate = strtotime($Value['Date']) - 8640; //Value Datum - ein Tag
 					$endDate = strtotime($Value['Date']) + 8640; //Value Datum + ein Tag
 			
 					$rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
