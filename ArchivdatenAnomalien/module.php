@@ -26,8 +26,21 @@ declare(strict_types=1);
 		}
 
 		public function deleteAnomalies($resultList) {
-			IPS_LogMessage('resultList', print_r($resultList,true));
+			$archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
+			$resultList = (array) $resultList;
+			foreach ($resultList as $tmpValue) {
+				if (is_array($tmpValue)) {
+					foreach ($tmpValue as $listValue) {
+						if ($listValue['Delete']) {
+							IPS_LogMessage('Test',$listValue['Date']);
+							$Date = strtotime($listValue['Date']);
+							AC_DeleteVariableData($archiveID,$this->ReadPropertyInteger('LoggedVariable'),$Date,$Date);
+							AC_ReAggregateVariable($archiveID,$this->ReadPropertyInteger('LoggedVariable'));
+						}
+					}
+				}
 
+			}
 		}
 
 		public function checkAnomalies(bool $rawData = false) {
@@ -50,14 +63,11 @@ declare(strict_types=1);
 					$startDate = strtotime($Value['Date'])-172800; //Value Datum - zwei Tag
 					$endDate = strtotime($Value['Date'])+172800 ; //Value Datum + ein Tag
 			
-					IPS_LogMessage('startDate', date('d.m.Y H:i',$startDate));
-					IPS_LogMessage('endDatum', date('d.m.Y H:i',$endDate));
-
 					$rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
 					$filteredRawValues = $this->filter_variable($rawValues,true);
-					if (count($filteredRawValues) >0 ) {
+					if (count($filteredRawValues) > 0 ) {
 						foreach ($filteredRawValues as $rawValue) {
-							if(!array_search($rawValue['Date'], array_column($resultListValues, 'Date'))) {
+							if(array_search($rawValue['Date'], array_column($resultListValues, 'Date')) === false) {
 								array_push($resultListValues,$rawValue);
 							}
 						}
@@ -71,14 +81,11 @@ declare(strict_types=1);
 			$this->UpdateFormField("resultList", "values", json_encode($resultListValues));
 
 		}
-
-
-				private function filter_variable($logData, $rawData) {
+			private function filter_variable($logData, $rawData) {
 					$keyValue = 'Avg';
 					if($rawData) {
 						$keyValue = 'Value';
 					}
-
 					$failedValues = [];
 				// Anzahl der Werte
 					$entries = count($logData);
