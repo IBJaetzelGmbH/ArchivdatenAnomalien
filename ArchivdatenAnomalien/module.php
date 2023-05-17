@@ -8,9 +8,12 @@ declare(strict_types=1);
             //Never delete this line!
             parent::Create();
             $this->RegisterPropertyInteger('LoggedVariable', 0);
+            $this->RegisterPropertyString('CheckedVariables', '{}');
             $this->RegisterPropertyString('StartDate', '');
             $this->RegisterPropertyString('EndDate', '');
             $this->RegisterPropertyBoolean('rawData', false);
+
+            $this->SetBuffer('CheckedVariables', '{}');
         }
 
         public function Destroy()
@@ -23,48 +26,102 @@ declare(strict_types=1);
         {
             //Never delete this line!
             parent::ApplyChanges();
+
+            $checkedVariables = $this->ReadPropertyString('CheckedVariables');
+            $this->SetBuffer('CheckedVariables', $checkedVariables);
+        }
+
+        public function GetConfigurationForm()
+        {
+            //Reset Liste CheckedVariables, falls nicht gespeichert wurde
+            $checkedVariables = $this->ReadPropertyString('CheckedVariables');
+            $this->SetBuffer('CheckedVariables', $checkedVariables);
+
+            $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+            $archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
+            $loggedVariables = AC_GetAggregationVariables($archiveID, false);
+
+            $listValues = [];
+
+            foreach ($loggedVariables as $variable) {
+                if ($variable['AggregationType'] == 1) {
+                    $listValues[] = [
+                        'VariableID'        => $variable['VariableID'],
+                        'editable'          => false
+                    ];
+                }
+            }
+            $Form['elements'][0]['items'][0]['values'] = $listValues;
+            IPS_LogMessage('Form', print_r($Form, true));
+
+            return json_encode($Form);
         }
 
         public function deleteAnomalies($resultList)
         {
+            $deleted = 0;
             $archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
             $resultList = (array) $resultList;
             foreach ($resultList as $tmpValue) {
                 if (is_array($tmpValue)) {
                     foreach ($tmpValue as $listValue) {
                         if ($listValue['Delete']) {
-                            IPS_LogMessage('Test', $listValue['Date']);
                             $Date = strtotime($listValue['Date']);
-                            AC_DeleteVariableData($archiveID, $this->ReadPropertyInteger('LoggedVariable'), $Date, $Date);
-                            AC_ReAggregateVariable($archiveID, $this->ReadPropertyInteger('LoggedVariable'));
+                            AC_DeleteVariableData($archiveID, $listValue['VariableID'], $Date, $Date);
+                            AC_ReAggregateVariable($archiveID, $listValue['VariableID']);
+                            $deleted++;
                         }
                     }
                 }
+                if ($deleted > 0) {
+                    $this->UpdateFormField('PopupInfoLabel', 'caption', $deleted . ' ' . $this->Translate('anomalies have been deleted.'));
+                    if ($deleted == 1) {
+                        $this->UpdateFormField('PopupInfoLabel', 'caption', $deleted . ' ' . $this->Translate('anomalie deleted.'));
+                    }
+                    $this->UpdateFormField('PopupInfo', 'visible', true);
+                }
             }
+            $this->checkAnomalies();
         }
 
         public function checkAnomalies(bool $rawData = false)
         {
             $archiveID = IPS_GetInstanceListByModuleID('{43192F0B-135B-4CE7-A0A7-1475603F3060}')[0];
-            $variableID = $this->ReadPropertyInteger('LoggedVariable');
+            //$variableID = $this->ReadPropertyInteger('LoggedVariable');
+            $listVariableIDs = json_decode($this->ReadPropertyString('CheckedVariables'), true);
             $aggregationType = 1;
-            $startDate = json_decode($this->ReadPropertyString('StartDate'), true);
-            $endDate = json_decode($this->ReadPropertyString('EndDate'), true);
+            $propStartDate = json_decode($this->ReadPropertyString('StartDate'), true);
+            $propEndDate = json_decode($this->ReadPropertyString('EndDate'), true);
 
-            $startDate = strtotime($startDate['day'] - 2 . '.' . $startDate['month'] . '.' . $startDate['year'] . '00:00:00');
-            $endDate = strtotime($endDate['day'] + 2 . '.' . $endDate['month'] . '.' . $endDate['year'] . '23:59:59');
+            $startDate = strtotime($propStartDate['day'] . '.' . $propStartDate['month'] . '.' . $propStartDate['year'] . '00:00:00') - 86400;
+            $endDate = strtotime($propEndDate['day'] . '.' . $propEndDate['month'] . '.' . $propEndDate['year'] . '23:59:59') + 86400;
+
             $resultListValues = [];
-            if (!$rawData) {
-                $values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
-                $filteredValues = $this->filter_variable($values, $rawData);
-                IPS_LogMessage('filteredValues', print_r($filteredValues, true));
+            foreach ($listVariableIDs as $valueVariableID) {
+                $variableID = $valueVariableID['VariableID'];
+                if (!$rawData) {
+                    $values = AC_GetAggregatedValues($archiveID, $variableID, $aggregationType, $startDate, $endDate, 0);
 
-                foreach ($filteredValues as $Value) {
-                    $startDate = strtotime($Value['Date']) - 172800; //Value Datum - zwei Tag
-                    $endDate = strtotime($Value['Date']) + 172800; //Value Datum + ein Tag
+                    $filteredValues = $this->filter_variable($values, $rawData, $variableID);
 
-                    $rawValues = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
-                    $filteredRawValues = $this->filter_variable($rawValues, true);
+                    foreach ($filteredValues as $Value) {
+                        $valueStartDate = strtotime($Value['Date']); // - 172800; //Value Datum - zwei Tag
+                        $valueEndDate = strtotime($Value['Date']); // + 172800; //Value Datum + ein Tag
+
+                        $rawValues = AC_GetLoggedValues($archiveID, $variableID, $valueEndDate, $endDate, 0);
+                        $filteredRawValues = $this->filter_variable($rawValues, true, $variableID);
+                        if (count($filteredRawValues) > 0) {
+                            foreach ($filteredRawValues as $rawValue) {
+                                if (array_search($rawValue['Date'], array_column($resultListValues, 'Date')) === false) {
+                                    array_push($resultListValues, $rawValue);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    $values = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
+                    $filteredRawValues = $this->filter_variable($values, true, $variableID);
                     if (count($filteredRawValues) > 0) {
                         foreach ($filteredRawValues as $rawValue) {
                             if (array_search($rawValue['Date'], array_column($resultListValues, 'Date')) === false) {
@@ -73,14 +130,39 @@ declare(strict_types=1);
                         }
                     }
                 }
-            } else {
-                $values = AC_GetLoggedValues($archiveID, $variableID, $startDate, $endDate, 0);
-                $resultListValues = $this->filter_variable($values, $rawData);
             }
+
             $this->UpdateFormField('resultList', 'values', json_encode($resultListValues));
         }
 
-        private function filter_variable($logData, $rawData)
+        public function addCheckedVariables($variableID)
+        {
+            if ($variableID > 0) {
+                $values = json_decode($this->GetBuffer('CheckedVariables'), true);
+
+                if (array_search($variableID, array_column($values, 'VariableID')) === false) {
+                    $values[] = [
+                        'VariableID'        => $variableID,
+                        'editable'          => false
+                    ];
+                }
+                $this->SetBuffer('CheckedVariables', json_encode($values));
+                $this->UpdateFormField('CheckedVariables', 'values', json_encode($values));
+            }
+        }
+
+        public function deleteCheckedVariables($variableID)
+        {
+            $values = json_decode($this->GetBuffer('CheckedVariables'), true);
+
+            $key = array_search($variableID, array_column($values, 'VariableID'));
+            unset($values[$key]);
+            $values = array_values($values);
+            $this->SetBuffer('CheckedVariables', json_encode($values));
+            $this->UpdateFormField('CheckedVariables', 'values', json_encode($values));
+        }
+
+        private function filter_variable($logData, $rawData, $variableID)
         {
             $keyValue = 'Avg';
             if ($rawData) {
@@ -106,24 +188,13 @@ declare(strict_types=1);
                     // lösche mittleren Wert
                     $failedValues[] = [
                         'Date'        => date('d.m.Y H:i:s', $logData[$i - 1]['TimeStamp']),
+                        'VariableID'  => $variableID,
                         'ValueBefore' => $logData[$i][$keyValue],
                         'Value'       => $logData[$i - 1][$keyValue],
                         'ValueAfter'  => $logData[$i - 2][$keyValue]
                     ];
-                    // Fehler in Logfile eintragen
-                    IPS_LogMessage('Medianfilter', $this->ReadPropertyInteger('LoggedVariable') . ' ' . $changes . '. diff1:' . $diff1 . ' $diff2:' . $diff2);
-
-                    // eine Änderung mehr
                     $changes++;
                 }
-            }
-
-            // Wenn es Änderungen gab
-            if ($changes > 0) {
-                // Anzahl der Fehler ins Logfile
-                IPS_LogMessage('Medianfilter', $this->ReadPropertyInteger('LoggedVariable') . ': Fehlerhafte Werte:' . $changes);
-            } else {
-                IPS_LogMessage('Medianfilter', $this->ReadPropertyInteger('LoggedVariable') . ': Alles OK');
             }
             return $failedValues;
         }

@@ -1,11 +1,67 @@
 {
     "elements": [
-        {
-            "type": "SelectVariable",
-            "caption": "Logged varaible",
-            "name": "LoggedVariable",
-            "width": "auto",
-            "requiredLogging": 4
+        { 
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "List",
+                    "name": "allVariables",
+                    "caption": "All logged variables",
+                    "rowCount": 25,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "VariableID",
+                        "direction": "ascending"
+                    },
+                    "columns": [
+                        {
+                            "caption": "Variable ID",
+                            "name": "VariableID",
+                            "width": "600x",
+                            "edit": {
+                                "type": "SelectVariable",
+                                "requiredLogging": 4
+                            }
+                        }
+                    ],
+                    "values": []
+                },
+                {
+                    "type": "Button",
+                    "caption": ">>",
+                    "onClick": "if (isset($allVariables['VariableID'])){ AA_addCheckedVariables($id, $allVariables['VariableID']);}"
+                },
+                {
+                    "type": "Button",
+                    "caption": "<<",
+                    "onClick": "if (isset($CheckedVariables['VariableID'])){ AA_deleteCheckedVariables($id, $CheckedVariables['VariableID']);}"
+                },
+                {
+                    "type": "List",
+                    "name": "CheckedVariables",
+                    "caption": "Checked variables for anomalie",
+                    "rowCount": 25,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "VariableID",
+                        "direction": "ascending"
+                    },
+                    "columns": [
+                        {
+                            "caption": "Variable ID",
+                            "name": "VariableID",
+                            "width": "600x",
+                            "edit": {
+                                "type": "SelectVariable",
+                                "requiredLogging": 4
+                            }
+                        }
+                    ],
+                    "values": []
+                }
+            ]
         },
         {
             "type": "SelectDate",
@@ -38,27 +94,32 @@
                 {
                     "caption": "Date",
                     "name": "Date",
-                    "width": "250px"
+                    "width": "200px"
                 },
                 {
-                    "caption": "Value Before",
+                    "caption": "VariableID",
+                    "name": "VariableID",
+                    "width": "200px"
+                },
+                {
+                    "caption": "Value before anomalie",
                     "name": "ValueBefore",
-                    "width": "250px"
+                    "width": "200px"
                 },
                 {
                     "caption": "Value",
                     "name": "Value",
-                    "width": "250px"
+                    "width": "200px"
                 },
                 {
                     "caption": "Value After",
                     "name": "ValueAfter",
-                    "width": "250px"
+                    "width": "200px"
                 },
                 {
                     "caption": "Delete",
                     "name": "Delete",
-                    "width": "100px",
+                    "width": "90px",
                     "edit": {
                         "type": "CheckBox"
                     }
@@ -70,6 +131,21 @@
             "type": "Button",
             "caption": "Delete selected Anomalies",
             "onClick": "AA_deleteAnomalies($id, $resultList);"
+        },
+        {
+            "name": "PopupInfo",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "closeCaption": "Ok",
+                "items": [
+                    {
+                        "name": "PopupInfoLabel",
+                        "type": "Label",
+                        "caption": ""
+                    }
+                ]
+            }
         }
     ],
     "status": []
