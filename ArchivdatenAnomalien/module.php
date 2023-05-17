@@ -80,10 +80,6 @@ declare(strict_types=1);
             $this->UpdateFormField('resultList', 'values', json_encode($resultListValues));
         }
 
-        protected function sd_square($x, $mean)
-        {
-            return pow($x - $mean, 2);
-        }
         private function filter_variable($logData, $rawData)
         {
             $keyValue = 'Avg';
@@ -130,20 +126,5 @@ declare(strict_types=1);
                 IPS_LogMessage('Medianfilter', $this->ReadPropertyInteger('LoggedVariable') . ': Alles OK');
             }
             return $failedValues;
-        }
-
-        private function remove_outliers($dataset, $magnitude = 1)
-        {
-            $count = count($dataset);
-            //$mean = array_sum($dataset) / $count; // Calculate the mean
-
-            $mean = array_sum(array_column($dataset, 'Value'));
-
-            $deviation = sqrt(array_sum(array_map('ArchivdatenAnomalien::sd_square', array_column($dataset, 'Value'), array_fill(0, $count, $mean))) / $count) * $magnitude; // Calculate standard deviation and times by magnitude
-
-            return array_filter(array_column($dataset, 'Value'), function ($x) use ($mean, $deviation)
-            {
-                return $x <= $mean + $deviation && $x >= $mean - $deviation;
-            }); // Return filtered array of values that lie within $mean +- $deviation.
         }
     }
