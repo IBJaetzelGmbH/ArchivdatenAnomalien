@@ -1,6 +1,6 @@
 {
     "elements": [
-        { 
+        {
             "type": "RowLayout",
             "items": [
                 {
@@ -131,6 +131,12 @@
             "type": "Button",
             "caption": "Delete selected Anomalies",
             "onClick": "AA_deleteAnomalies($id, $resultList);"
+        },
+        {
+            "type": "Button",
+            "caption": "Download last deletion report",
+            "link": true,
+            "onClick": "AA_DownloadDeletionReport($id);"
         },
         {
             "name": "PopupInfo",
